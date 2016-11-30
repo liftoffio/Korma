@@ -9,7 +9,7 @@
   (table :users)
   (has-many address (fk :user_id))
   (transform
-   #(update-in % [:address] (partial sort-by :id))))
+    #(update-in % [:address] (partial sort-by :id))))
 
 (defentity address
   (belongs-to user (fk :user_id))
@@ -19,8 +19,8 @@
 
 (def initial-data
   {:state
-   [{:id "CA" :name "California"}
-    {:id "PA" :name "Pennsylvania"}]
+     [{:id "CA" :name "California"}
+      {:id "PA" :name "Pennsylvania"}]
    :user []
    :address []})
 
@@ -37,54 +37,54 @@
 
 (defn reset-schema []
   (dorun
-   (map exec-raw schema)))
+    (map exec-raw schema)))
 
 (defn- populate-states [data]
   (insert state
-          (values (:state data))))
+    (values (:state data))))
 
 (defn- populate-users
   "add num-users to the database and to the `data` map"
   [data num-users]
   (reduce
-   (fn [data user-id]
-     (let [u {:id user-id
-              :name (random-string)
-              :age (rand-int 100)}]
-       (insert user
-               (values u))
-       (update-in data
-                  [:user]
-                  conj (assoc u :address []))))
-   data
-   (range num-users)))
+    (fn [data user-id]
+      (let [u {:id user-id
+               :name (random-string)
+               :age (rand-int 100)}]
+        (insert user
+          (values u))
+        (update-in data
+                   [:user]
+                   conj (assoc u :address []))))
+    data
+    (range num-users)))
 
 (defn- populate-addresses
   "add up to max-addresses-per-user addresses to each user. ensure that at least one user has no addresses at all"
   [data max-addresses-per-user]
   (assoc data
-         :user (vec
-                (cons
-                 (first (:user data))
-                 (map
-                  (fn [user]
-                    (let [addrs (doall
-                                 (for [n (range (rand-int max-addresses-per-user))]
-                                   (let [a {:user_id (:id user)
-                                            :street (random-string)
-                                            :number (subs (random-string) 0 10)
-                                            :city (random-string)
-                                            :zip (str (rand-int 10000))
-                                            :state_id (-> data :state rand-nth :id)}
-                                         inserted (insert address (values a))
-                                         ;; insert returns a map with a single key
-                                         ;; the key depends on the underlying database, but the
-                                         ;; value is the generated value of the key column
-                                         inserted-id (first (vals inserted))
-                                         a (assoc a :id inserted-id)]
-                                     a)))]
-                      (assoc user :address (vec addrs))))
-                  (rest (:user data)))))))
+    :user (vec
+            (cons
+              (first (:user data))
+              (map
+                (fn [user]
+                  (let [addrs (doall
+                                (for [n (range (rand-int max-addresses-per-user))]
+                                  (let [a {:user_id (:id user)
+                                           :street (random-string)
+                                           :number (subs (random-string) 0 10)
+                                           :city (random-string)
+                                           :zip (str (rand-int 10000))
+                                           :state_id (-> data :state rand-nth :id)}
+                                        inserted (insert address (values a))
+                                        ;; insert returns a map with a single key
+                                        ;; the key depends on the underlying database, but the
+                                        ;; value is the generated value of the key column
+                                        inserted-id (first (vals inserted))
+                                        a (assoc a :id inserted-id)]
+                                    a)))]
+                    (assoc user :address (vec addrs))))
+                (rest (:user data)))))))
 
 (defn populate
   "populate the test database with random data and return a data structure that mirrors the data inserted into the database."

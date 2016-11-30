@@ -110,15 +110,15 @@
         db))))
 
 (def ^:private subprotocol->classname {"firebirdsql" "org.firebirdsql.jdbc.FBDriver"
-                                       "postgresql"  "org.postgresql.Driver"
-                                       "postgres"    "org.postgresql.Driver"
-                                       "oracle"      "oracle.jdbc.driver.OracleDriver"
-                                       "mysql"       "com.mysql.jdbc.Driver"
-                                       "vertica"     "com.vertica.jdbc.Driver"
-                                       "sqlserver"   "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                                       "odbc"        "sun.jdbc.odbc.JdbcOdbcDriver"
-                                       "sqlite"      "org.sqlite.JDBC"
-                                       "h2"          "org.h2.Driver"})
+                                       "postgresql" "org.postgresql.Driver"
+                                       "postgres" "org.postgresql.Driver"
+                                       "oracle" "oracle.jdbc.driver.OracleDriver"
+                                       "mysql" "com.mysql.jdbc.Driver"
+                                       "vertica" "com.vertica.jdbc.Driver"
+                                       "sqlserver" "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+                                       "odbc" "sun.jdbc.odbc.JdbcOdbcDriver"
+                                       "sqlite" "org.sqlite.JDBC"
+                                       "h2" "org.h2.Driver"})
 
 (def ^:private subprotocol->options {"mysql" {:delimiters "`"}})
 
@@ -126,7 +126,7 @@
   (if-let [uri-or-subprotocol (or connection-uri subprotocol)]
     (let [lookup-key (first (drop-while #{"jdbc"} (clojure.string/split uri-or-subprotocol #":")))]
       (merge
-        {:classname  (subprotocol->classname lookup-key)
+        {:classname (subprotocol->classname lookup-key)
          :make-pool? true}
         (subprotocol->options lookup-key)
         spec))
@@ -142,9 +142,9 @@
    If the spec includes `:make-pool? true` makes a connection pool from the spec."
   [spec]
   (let [spec (complete-spec spec)]
-    {:pool    (if (:make-pool? spec)
-                (delay-pool spec)
-                spec)
+    {:pool (if (:make-pool? spec)
+             (delay-pool spec)
+             spec)
      :options (extract-options spec)}))
 
 (defmacro defdb
@@ -159,11 +159,11 @@
   "Create a database specification for a FirebirdSQL database. Opts should include
   keys for :db, :user, :password. You can also optionally set host, port and make-pool?"
   [{:keys [host port db]
-    :or {host "localhost", port 3050, db ""}
+    :or {host "localhost" port 3050 db ""}
     :as opts}]
   (merge {:subprotocol "firebirdsql"
-          :subname     (str host "/" port ":" db)
-          :encoding    "UTF8"}
+          :subname (str host "/" port ":" db)
+          :encoding "UTF8"}
          (dissoc opts :host :port :db)))
 
 (defn postgres
@@ -171,20 +171,20 @@
   keys for :db, :user, and :password. You can also optionally set host and
   port."
   [{:keys [host port db]
-    :or {host "localhost", port 5432, db ""}
+    :or {host "localhost" port 5432 db ""}
     :as opts}]
   (merge {:subprotocol "postgresql"
-          :subname     (str "//" host ":" port "/" db)}
+          :subname (str "//" host ":" port "/" db)}
          (dissoc opts :host :port :db)))
 
 (defn oracle
   "Create a database specification for an Oracle database. Opts should include keys
   for :user and :password. You can also optionally set host and port."
   [{:keys [host port]
-    :or {host "localhost", port 1521}
+    :or {host "localhost" port 1521}
     :as opts}]
   (merge {:subprotocol "oracle:thin"
-          :subname     (str "@" host ":" port)}
+          :subname (str "@" host ":" port)}
          (dissoc opts :host :port)))
 
 (defn mysql
@@ -192,10 +192,10 @@
   for :db, :user, and :password. You can also optionally set host and port.
   Delimiters are automatically set to \"`\"."
   [{:keys [host port db]
-    :or {host "localhost", port 3306, db ""}
+    :or {host "localhost" port 3306 db ""}
     :as opts}]
   (merge {:subprotocol "mysql"
-          :subname     (str "//" host ":" port "/" db)}
+          :subname (str "//" host ":" port "/" db)}
          (dissoc opts :host :port :db)))
 
 (defn vertica
@@ -203,20 +203,20 @@
   for :db, :user, and :password. You can also optionally set host and port.
   Delimiters are automatically set to \"`\"."
   [{:keys [host port db]
-    :or {host "localhost", port 5433, db ""}
+    :or {host "localhost" port 5433 db ""}
     :as opts}]
   (merge {:subprotocol "vertica"
-          :subname     (str "//" host ":" port "/" db)}
+          :subname (str "//" host ":" port "/" db)}
          (dissoc opts :host :port :db)))
 
 (defn mssql
   "Create a database specification for a mssql database. Opts should include keys
   for :db, :user, and :password. You can also optionally set host and port."
   [{:keys [user password db host port]
-    :or {user "dbuser", password "dbpassword", db "", host "localhost", port 1433}
+    :or {user "dbuser" password "dbpassword" db "" host "localhost" port 1433}
     :as opts}]
   (merge {:subprotocol "sqlserver"
-          :subname     (str "//" host ":" port ";database=" db ";user=" user ";password=" password)}
+          :subname (str "//" host ":" port ";database=" db ";user=" user ";password=" password)}
          (dissoc opts :host :port :db)))
 
 (defn msaccess
@@ -226,10 +226,10 @@
     :or {db ""}
     :as opts}]
   (merge {:subprotocol "odbc"
-          :subname     (str "Driver={Microsoft Access Driver (*.mdb"
-                            (when (.endsWith db ".accdb") ", *.accdb")
-                            ")};Dbq=" db)
-          :make-pool?  false}
+          :subname (str "Driver={Microsoft Access Driver (*.mdb"
+                        (when (.endsWith db ".accdb") ", *.accdb")
+                        ")};Dbq=" db)
+          :make-pool? false}
          (dissoc opts :db)))
 
 (defn odbc
@@ -239,7 +239,7 @@
     :or {dsn ""}
     :as opts}]
   (merge {:subprotocol "odbc"
-          :subname     dsn}
+          :subname dsn}
          (dissoc opts :dsn)))
 
 (defn sqlite3
@@ -249,7 +249,7 @@
     :or {db "sqlite.db"}
     :as opts}]
   (merge {:subprotocol "sqlite"
-          :subname     db}
+          :subname db}
          (dissoc opts :db)))
 
 (defn h2
@@ -259,7 +259,7 @@
     :or {db "h2.db"}
     :as opts}]
   (merge {:subprotocol "h2"
-          :subname     db}
+          :subname db}
          (dissoc opts :db)))
 
 (defmacro transaction
@@ -273,9 +273,9 @@
         {:keys [isolation read-only?]} (when check-options options)
         body (if check-options (rest body) body)]
     `(binding [*current-db* (or *current-db* @_default)]
-      (jdbc/with-db-transaction [conn# (or *current-conn* (get-connection *current-db*)) {:isolation ~isolation :read-only? ~read-only?}]
-        (binding [*current-conn* conn#]
-          ~@body)))))
+       (jdbc/with-db-transaction [conn# (or *current-conn* (get-connection *current-db*)) {:isolation ~isolation :read-only? ~read-only?}]
+         (binding [*current-conn* conn#]
+           ~@body)))))
 
 (defn rollback
   "Tell this current transaction to rollback."

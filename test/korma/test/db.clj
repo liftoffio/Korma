@@ -8,9 +8,9 @@
 (defdb mem-db (h2 {:db "mem:test"}))
 
 (use-fixtures :once
-  (fn [f]
-    (default-connection mem-db)
-    (f)))
+              (fn [f]
+                (default-connection mem-db)
+                (f)))
 
 (def db-config-with-defaults
   {:classname "org.h2.Driver"
@@ -34,22 +34,22 @@
    :connectTimeout 1000})
 
 (deftest can-extract-options-merging-delimiters
-    (let [original (extract-options nil)]
-          (is (= (assoc original :delimiters ["`" "`"]) 
-                 (extract-options {:delimiters ["`" "`"]})))))
+  (let [original (extract-options nil)]
+    (is (= (assoc original :delimiters ["`" "`"])
+           (extract-options {:delimiters ["`" "`"]})))))
 
 (deftest can-extract-options-merging-alias-delimiter
-    (let [original (extract-options nil)]
-          (is (= (assoc original :alias-delimiter " az ") 
-                 (extract-options {:alias-delimiter " az "})))))
+  (let [original (extract-options nil)]
+    (is (= (assoc original :alias-delimiter " az ")
+           (extract-options {:alias-delimiter " az "})))))
 
 (deftest can-extract-options-merging-naming
-    (let [custom-fn (fn [& args] args)
-                  original (extract-options nil)]
-          (is (= (assoc original :naming {:fields custom-fn
-                                          :keys custom-fn}) 
-                 (extract-options {:naming {:fields custom-fn
-                                            :keys custom-fn}})))))
+  (let [custom-fn (fn [& args] args)
+        original (extract-options nil)]
+    (is (= (assoc original :naming {:fields custom-fn
+                                    :keys custom-fn})
+           (extract-options {:naming {:fields custom-fn
+                                      :keys custom-fn}})))))
 
 (deftest connection-pooling-default-test
   (let [pool (connection-pool db-config-with-defaults)

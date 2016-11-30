@@ -28,9 +28,9 @@
 
 (deftest test-nested-transactions-work
   (transaction
-   (insert users-live-mysql (values {:name "thiago"}))
-   (transaction
-    (update users-live-mysql (set-fields {:name "THIAGO"}) (where {:name "thiago"})))))
+    (insert users-live-mysql (values {:name "thiago"}))
+    (transaction
+      (update users-live-mysql (set-fields {:name "THIAGO"}) (where {:name "thiago"})))))
 
 (deftest mysql-count
   (insert users-live-mysql (values {:name "thiago"}))

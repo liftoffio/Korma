@@ -1,8 +1,8 @@
 (ns korma.sql.engine
   (:require [clojure.string :as string]
             [clojure.walk :as walk]
-            [korma.sql.utils :as utils]
-            [korma.db :as db]))
+            [korma.db :as db]
+            [korma.sql.utils :as utils]))
 
 ;;*****************************************************
 ;; dynamic vars
@@ -157,21 +157,21 @@
 ;;*****************************************************
 
 (def predicates
-  (let [predicates-s {'like    'korma.sql.fns/pred-like
-                      'ilike   'korma.sql.fns/pred-ilike
-                      'and     'korma.sql.fns/pred-and
-                      'or      'korma.sql.fns/pred-or
-                      'not     'korma.sql.fns/pred-not
-                      'in      'korma.sql.fns/pred-in
-                      'exists  'korma.sql.fns/pred-exists
-                      'not-in  'korma.sql.fns/pred-not-in
+  (let [predicates-s {'like 'korma.sql.fns/pred-like
+                      'ilike 'korma.sql.fns/pred-ilike
+                      'and 'korma.sql.fns/pred-and
+                      'or 'korma.sql.fns/pred-or
+                      'not 'korma.sql.fns/pred-not
+                      'in 'korma.sql.fns/pred-in
+                      'exists 'korma.sql.fns/pred-exists
+                      'not-in 'korma.sql.fns/pred-not-in
                       'between 'korma.sql.fns/pred-between
-                      '>       'korma.sql.fns/pred->
-                      '<       'korma.sql.fns/pred-<
-                      '>=      'korma.sql.fns/pred->=
-                      '<=      'korma.sql.fns/pred-<=
-                      'not=    'korma.sql.fns/pred-not=
-                      '=       'korma.sql.fns/pred-=}
+                      '> 'korma.sql.fns/pred->
+                      '< 'korma.sql.fns/pred-<
+                      '>= 'korma.sql.fns/pred->=
+                      '<= 'korma.sql.fns/pred-<=
+                      'not= 'korma.sql.fns/pred-not=
+                      '= 'korma.sql.fns/pred-=}
         predicates-k (into {} (map (fn [[k v]] {(keyword k) v}) predicates-s))]
     (merge predicates-s predicates-k)))
 
@@ -341,7 +341,7 @@
         query
         (update-in query [:sql-str] str neue-sql)))))
 
-(def sql-where  (partial sql-where-or-having :where  " WHERE "))
+(def sql-where (partial sql-where-or-having :where " WHERE "))
 (def sql-having (partial sql-where-or-having :having " HAVING "))
 
 (defn sql-order [query]
@@ -377,7 +377,7 @@
         neue-sql (string/join (str " " type " ") sub-query-sqls)]
     (assoc query :sql-str neue-sql)))
 
-(def sql-union     (partial sql-combination-query "UNION"))
+(def sql-union (partial sql-combination-query "UNION"))
 (def sql-union-all (partial sql-combination-query "UNION ALL"))
 (def sql-intersect (partial sql-combination-query "INTERSECT"))
 
@@ -392,24 +392,24 @@
 
 (defn ->sql [query]
   (bind-params
-   (case (:type query)
-     :union (-> query sql-union sql-order)
-     :union-all (-> query sql-union-all sql-order)
-     :intersect (-> query sql-intersect sql-order)
-     :select (-> query
-                 sql-select
-                 sql-joins
-                 sql-where
-                 sql-group
-                 sql-having
-                 sql-order
-                 sql-limit-offset)
-     :update (-> query
-                 sql-update
-                 sql-set
-                 sql-where)
-     :delete (-> query
-                 sql-delete
-                 sql-where)
-     :insert (-> query
-                 sql-insert))))
+    (case (:type query)
+      :union (-> query sql-union sql-order)
+      :union-all (-> query sql-union-all sql-order)
+      :intersect (-> query sql-intersect sql-order)
+      :select (-> query
+                  sql-select
+                  sql-joins
+                  sql-where
+                  sql-group
+                  sql-having
+                  sql-order
+                  sql-limit-offset)
+      :update (-> query
+                  sql-update
+                  sql-set
+                  sql-where)
+      :delete (-> query
+                  sql-delete
+                  sql-where)
+      :insert (-> query
+                  sql-insert))))
