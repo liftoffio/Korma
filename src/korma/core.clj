@@ -465,7 +465,7 @@
 
 (defn- apply-transforms
   [query results]
-  (if (#{:delete :update} (:type query))
+  (if (#{:delete :update :insert} (:type query))
     results
     (if-let [trans (-> query :ent :transforms seq)]
       (let [trans-fn (apply comp trans)]
