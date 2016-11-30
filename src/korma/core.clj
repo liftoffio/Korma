@@ -422,8 +422,10 @@
 
   (select users
     (fields (raw \"PERIOD(NOW(), NOW())\")))"
-  [s]
-  (utils/generated s))
+  ([s]
+   (utils/generated s))
+  ([_query_ s]
+   (raw s)))
 
 ;;*****************************************************
 ;; Query exec
