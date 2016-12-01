@@ -4,6 +4,11 @@
             [korma.db :as db]
             [korma.sql.utils :as utils]))
 
+(def default-options {:delimiters ["\"" "\""]
+                      :naming {:fields identity
+                               :keys identity}
+                      :alias-delimiter " AS "})
+
 ;;*****************************************************
 ;; dynamic vars
 ;;*****************************************************
@@ -18,7 +23,7 @@
 ;;*****************************************************
 
 (defn delimit-str [s]
-  (let [{:keys [naming delimiters]} *bound-options*
+  (let [{:keys [naming delimiters]} (or *bound-options* default-options)
         [begin end] delimiters
         ->field (:fields naming)]
     (str begin (->field s) end)))
@@ -149,7 +154,8 @@
              *bound-aliases* (or (:aliases ~query) #{})
              *bound-options* (or (get-in ~query [:db :options])
                                  (:options db/*current-db*)
-                                 (:options @db/_default))]
+                                 (:options @db/_default)
+                                 default-options)]
      ~@body))
 
 ;;*****************************************************
