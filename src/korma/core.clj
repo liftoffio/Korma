@@ -616,7 +616,7 @@
   ([ent sub-ent]
    `(has-one ~ent ~sub-ent nil))
   ([ent sub-ent opts]
-   `(rel ~ent (var ~sub-ent) :has-one ~opts)))
+   `(rel ~ent (var ~sub-ent) :has-one ~(update-in opts [:fk] vector))))
 
 (defmacro belongs-to
   "Add a belongs-to relationship for the given entity. It is assumed that the foreign key
@@ -629,7 +629,7 @@
   ([ent sub-ent]
    `(belongs-to ~ent ~sub-ent nil))
   ([ent sub-ent opts]
-   `(rel ~ent (var ~sub-ent) :belongs-to ~opts)))
+   `(rel ~ent (var ~sub-ent) :belongs-to ~(update-in opts [:fk] vector))))
 
 (defmacro has-many
   "Add a has-many relation for the given entity. It is assumed that the foreign key
@@ -642,13 +642,13 @@
   ([ent sub-ent]
    `(has-many ~ent ~sub-ent nil))
   ([ent sub-ent opts]
-   `(rel ~ent (var ~sub-ent) :has-many ~opts)))
+   `(rel ~ent (var ~sub-ent) :has-many ~(update-in opts [:fk] vector))))
 
 (defn many-to-many-fn [ent sub-ent-var join-table opts]
   (let [opts (assoc opts
                :join-table join-table
-               :lfk (delay (get opts :lfk (default-fk-name ent)))
-               :rfk (delay (get opts :rfk (default-fk-name sub-ent-var))))]
+               :lfk (delay (or (some-> (get opts :lfk) vector) (default-fk-name ent)))
+               :rfk (delay (or (some-> (get opts :rfk) vector) (default-fk-name sub-ent-var))))]
     (rel ent sub-ent-var :many-to-many opts)))
 
 (defmacro many-to-many
