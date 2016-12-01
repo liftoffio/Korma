@@ -798,21 +798,18 @@
 
 (defn- with-one-to-one-later [rel query sub-ent body-fn]
   (let [sub-ent (assoc-db-to-entity query sub-ent)
-        [ent-key sub-ent-key] (get-join-keys rel (:ent query) sub-ent)]
+        [ent-key sub-ent-key] (get-join-keys rel (:ent query) sub-ent)
+        table (keyword (eng/table-alias sub-ent))]
     (post-query query
                 (partial map
-                         (fn [ent]
-                           (bind-query
-                             query
-                             (merge-with-unique-keys (get-in eng/*bound-options* [:naming :keys])
-                                                     ent
-                                                     (first
-                                                       (select sub-ent
-                                                         (body-fn)
-                                                         (where
-                                                           (let [ent-kval (map #(get ent %) ent-key)]
-                                                             (apply sfns/pred-and
-                                                                    (map sfns/pred-= sub-ent-key ent-kval)))))))))))))
+                         #(assoc % table
+                              (bind-query
+                                query
+                                (first (select sub-ent
+                                         (body-fn)
+                                         (where (apply sfns/pred-and
+                                                       (map sfns/pred-= sub-ent-key
+                                                            (map (fn [k] (get % k)) ent-key))))))))))))
 
 (defn- with-one-to-one-now [rel query sub-ent body-fn]
   (let [ent (:ent query)
