@@ -779,8 +779,6 @@
   (let [{:keys [rel-type] :as rel} (get-rel (:ent query) sub-ent)
         transforms (seq (:transforms sub-ent))]
     (cond
-      (and (#{:belongs-to :has-one} rel-type)
-           (not transforms))     (with-one-to-one-now rel query sub-ent body-fn)
       (#{:belongs-to :has-one} rel-type) (with-one-to-one-later rel query sub-ent body-fn)
       (= :has-many rel-type)     (with-one-to-many rel query sub-ent body-fn)
       (= :many-to-many rel-type) (with-many-to-many rel query sub-ent body-fn)
