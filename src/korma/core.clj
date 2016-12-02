@@ -59,9 +59,9 @@
   or a string of the table name."
   [ent]
   (make-query ent {:type :update
+                   :results :keys
                    :fields {}
-                   :where []
-                   :post-queries [first]}))
+                   :where []}))
 
 (defn delete*
   "Create an empty delete query. Ent can either be an entity defined by defentity,
