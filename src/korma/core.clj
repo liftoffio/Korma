@@ -747,12 +747,11 @@
     (post-query query
                 (partial map
                          (fn [ent]
-                           (merge-with-unique-keys (get-key-naming-strategy query)
-                                                   ent
-                                                   (first
-                                                     (select sub-ent
-                                                             (body-fn)
-                                                             (where {sub-ent-key (get ent ent-key)})))))))))
+                           (assoc ent (keyword (eng/table-alias sub-ent))
+                                  (first
+                                    (select sub-ent
+                                            (body-fn)
+                                            (where {sub-ent-key (get ent ent-key)})))))))))
 
 (defn- with-one-to-one-now [rel query sub-ent body-fn]
   (let [table (if (:alias rel) [(:table sub-ent) (:alias sub-ent)] (:table sub-ent))
