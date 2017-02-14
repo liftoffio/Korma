@@ -50,7 +50,7 @@
 
 (deftest belongs-to-with-transformer-users-correct-join-keys
   (is (= [{:id 1 :name "Chris" :address_id 101 :street "Main street" :id_of_state "CA" :id_of_user 1}
-          {:id 2 :name "Alex"  :address_id 102 :street "Park street" :id_of_state "PA" :id_of_user 2}]
+          {:id 2 :name "Alex" :address_id 102 :street "Park street" :id_of_state "PA" :id_of_user 2}]
          (select user (with address)))))
 
 (deftest has-one-with-transformer-users-correct-join-keys

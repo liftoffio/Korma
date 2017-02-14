@@ -47,14 +47,14 @@
         sub (utils/sub-query? v)
         pred (utils/pred? v)]
     (cond
-     generated generated
-     pred (apply pred args)
-     func (let [vs (comma-values args)]
-            (format func vs))
-     sub (do
-           (swap! *bound-params* utils/vconcat (:params sub))
-           (utils/wrap (:sql-str sub)))
-     :else (pred-map v))))
+      generated generated
+      pred (apply pred args)
+      func (let [vs (comma-values args)]
+             (format func vs))
+      sub (do
+            (swap! *bound-params* utils/vconcat (:params sub))
+            (utils/wrap (:sql-str sub)))
+      :else (pred-map v))))
 
 (defn table-alias [{:keys [table alias]}]
   (or alias table))
@@ -67,14 +67,14 @@
 
 (defn ^String field-identifier [field]
   (cond
-   (map? field) (map-val field)
-   (string? field) field
-   (= "*" (name field)) "*"
-   :else (let [field-name (name field)
-               parts (string/split field-name #"\.")]
-           (if-not (next parts)
-             (delimit-str field-name)
-             (string/join "." (map delimit-str parts))))))
+    (map? field) (map-val field)
+    (string? field) field
+    (= "*" (name field)) "*"
+    :else (let [field-name (name field)
+                parts (string/split field-name #"\.")]
+            (if-not (next parts)
+              (delimit-str field-name)
+              (string/join "." (map delimit-str parts))))))
 
 (defn prefix [ent field]
   (let [field-name (field-identifier field)
@@ -104,9 +104,9 @@
                         v
                         [v nil])
         fname (cond
-               (map? fname) (map-val fname)
-               *bound-table* (prefix *bound-table* fname)
-               :else (field-identifier fname))
+                (map? fname) (map-val fname)
+                *bound-table* (prefix *bound-table* fname)
+                :else (field-identifier fname))
         alias-str (alias-clause alias)]
     (str fname alias-str)))
 
@@ -117,9 +117,9 @@
   (if (utils/special-map? v)
     (map-val v)
     (let [tstr (cond
-                (string? v) v
-                (map? v) (:table v)
-                :else (name v))]
+                 (string? v) v
+                 (map? v) (:table v)
+                 :else (name v))]
       (table-identifier tstr))))
 
 (defn parameterize [v]
@@ -155,21 +155,21 @@
 ;;*****************************************************
 
 (def predicates
-  (let [predicates-s {'like    'korma.sql.fns/pred-like
-                      'ilike   'korma.sql.fns/pred-ilike
-                      'and     'korma.sql.fns/pred-and
-                      'or      'korma.sql.fns/pred-or
-                      'not     'korma.sql.fns/pred-not
-                      'in      'korma.sql.fns/pred-in
-                      'exists  'korma.sql.fns/pred-exists
-                      'not-in  'korma.sql.fns/pred-not-in
+  (let [predicates-s {'like 'korma.sql.fns/pred-like
+                      'ilike 'korma.sql.fns/pred-ilike
+                      'and 'korma.sql.fns/pred-and
+                      'or 'korma.sql.fns/pred-or
+                      'not 'korma.sql.fns/pred-not
+                      'in 'korma.sql.fns/pred-in
+                      'exists 'korma.sql.fns/pred-exists
+                      'not-in 'korma.sql.fns/pred-not-in
                       'between 'korma.sql.fns/pred-between
-                      '>       'korma.sql.fns/pred->
-                      '<       'korma.sql.fns/pred-<
-                      '>=      'korma.sql.fns/pred->=
-                      '<=      'korma.sql.fns/pred-<=
-                      'not=    'korma.sql.fns/pred-not=
-                      '=       'korma.sql.fns/pred-=}
+                      '> 'korma.sql.fns/pred->
+                      '< 'korma.sql.fns/pred-<
+                      '>= 'korma.sql.fns/pred->=
+                      '<= 'korma.sql.fns/pred-<=
+                      'not= 'korma.sql.fns/pred-not=
+                      '= 'korma.sql.fns/pred-=}
         predicates-k (into {} (map (fn [[k v]] {(keyword k) v}) predicates-s))]
     (merge predicates-s predicates-k)))
 
@@ -202,9 +202,9 @@
 
 (defn pred-= [k v]
   (cond
-   (not-nil? k v) (infix k "=" v)
-   (not-nil? k) (infix k "IS" v)
-   (not-nil? v) (infix v "IS" k)))
+    (not-nil? k v) (infix k "=" v)
+    (not-nil? k) (infix k "IS" v)
+    (not-nil? v) (infix v "IS" k)))
 
 (defn set= [[k v]]
   (map-val (infix k "=" v)))
@@ -257,14 +257,14 @@
 
 (defn from-table [v & [already-aliased?]]
   (cond
-   (string? v) (table-str v)
-   (vector? v) (let [[table alias] v]
-                 (str (from-table table :aliased) (alias-clause alias)))
-   (map? v) (if (:table v)
-              (let [{:keys [table alias]} v]
-                (str (table-str table) (when-not already-aliased? (alias-clause alias))))
-              (map-val v))
-   :else (table-str v)))
+    (string? v) (table-str v)
+    (vector? v) (let [[table alias] v]
+                  (str (from-table table :aliased) (alias-clause alias)))
+    (map? v) (if (:table v)
+               (let [{:keys [table alias]} v]
+                 (str (table-str table) (when-not already-aliased? (alias-clause alias))))
+               (map-val v))
+    :else (table-str v)))
 
 (defn join-clause [join-type table on-clause]
   (let [join-type (string/upper-case (name join-type))
@@ -339,7 +339,7 @@
         query
         (update-in query [:sql-str] str neue-sql)))))
 
-(def sql-where  (partial sql-where-or-having :where  " WHERE "))
+(def sql-where (partial sql-where-or-having :where " WHERE "))
 (def sql-having (partial sql-where-or-having :having " HAVING "))
 
 (defn sql-order [query]
@@ -375,7 +375,7 @@
         neue-sql (string/join (str " " type " ") sub-query-sqls)]
     (assoc query :sql-str neue-sql)))
 
-(def sql-union     (partial sql-combination-query "UNION"))
+(def sql-union (partial sql-combination-query "UNION"))
 (def sql-union-all (partial sql-combination-query "UNION ALL"))
 (def sql-intersect (partial sql-combination-query "INTERSECT"))
 
@@ -390,24 +390,24 @@
 
 (defn ->sql [query]
   (bind-params
-   (case (:type query)
-     :union (-> query sql-union sql-order)
-     :union-all (-> query sql-union-all sql-order)
-     :intersect (-> query sql-intersect sql-order)
-     :select (-> query
-                 sql-select
-                 sql-joins
-                 sql-where
-                 sql-group
-                 sql-having
-                 sql-order
-                 sql-limit-offset)
-     :update (-> query
-                 sql-update
-                 sql-set
-                 sql-where)
-     :delete (-> query
-                 sql-delete
-                 sql-where)
-     :insert (-> query
-                 sql-insert))))
+    (case (:type query)
+      :union (-> query sql-union sql-order)
+      :union-all (-> query sql-union-all sql-order)
+      :intersect (-> query sql-intersect sql-order)
+      :select (-> query
+                  sql-select
+                  sql-joins
+                  sql-where
+                  sql-group
+                  sql-having
+                  sql-order
+                  sql-limit-offset)
+      :update (-> query
+                  sql-update
+                  sql-set
+                  sql-where)
+      :delete (-> query
+                  sql-delete
+                  sql-where)
+      :insert (-> query
+                  sql-insert))))

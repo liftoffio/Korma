@@ -1,8 +1,8 @@
 (ns korma.test.integration.global-config
   (:refer-clojure :exclude [update])
-  (:require [korma.test.integration.helpers :as helpers]
+  (:require [clojure.string]
             [korma.config :as config]
-            [clojure.string])
+            [korma.test.integration.helpers :as helpers])
   (:use clojure.test
         korma.db
         korma.core))

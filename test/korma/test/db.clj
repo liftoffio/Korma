@@ -7,9 +7,9 @@
 (defdb mem-db (h2 {:db "mem:test"}))
 
 (use-fixtures :once
-  (fn [f]
-    (default-connection mem-db)
-    (f)))
+              (fn [f]
+                (default-connection mem-db)
+                (f)))
 
 (def db-config-with-defaults
   {:classname "org.h2.Driver"
@@ -63,7 +63,6 @@
 (deftest spec-with-missing-keys-returns-itself
   (defdb valid {:datasource :from-app-server})
   (is (= {:datasource :from-app-server} (get-connection valid))))
-
 
 ;;; DB spec creation fns
 

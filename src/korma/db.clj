@@ -115,7 +115,7 @@
   "Create a database specification for a FirebirdSQL database. Opts should include
   keys for :db, :user, :password. You can also optionally set host, port and make-pool?"
   [{:keys [host port db make-pool?]
-    :or {host "localhost", port 3050, db "", make-pool? true}
+    :or {host "localhost" port 3050 db "" make-pool? true}
     :as opts}]
   (merge {:classname "org.firebirdsql.jdbc.FBDriver" ; must be in classpath
           :subprotocol "firebirdsql"
@@ -129,7 +129,7 @@
   keys for :db, :user, and :password. You can also optionally set host and
   port."
   [{:keys [host port db make-pool?]
-    :or {host "localhost", port 5432, db "", make-pool? true}
+    :or {host "localhost" port 5432 db "" make-pool? true}
     :as opts}]
   (merge {:classname "org.postgresql.Driver" ; must be in classpath
           :subprotocol "postgresql"
@@ -141,7 +141,7 @@
   "Create a database specification for an Oracle database. Opts should include keys
   for :user and :password. You can also optionally set host and port."
   [{:keys [host port make-pool?]
-    :or {host "localhost", port 1521, make-pool? true}
+    :or {host "localhost" port 1521 make-pool? true}
     :as opts}]
   (merge {:classname "oracle.jdbc.driver.OracleDriver" ; must be in classpath
           :subprotocol "oracle:thin"
@@ -154,7 +154,7 @@
   for :db, :user, and :password. You can also optionally set host and port.
   Delimiters are automatically set to \"`\"."
   [{:keys [host port db make-pool?]
-    :or {host "localhost", port 3306, db "", make-pool? true}
+    :or {host "localhost" port 3306 db "" make-pool? true}
     :as opts}]
   (merge {:classname "com.mysql.jdbc.Driver" ; must be in classpath
           :subprotocol "mysql"
@@ -168,7 +168,7 @@
   for :db, :user, and :password. You can also optionally set host and port.
   Delimiters are automatically set to \"`\"."
   [{:keys [host port db make-pool?]
-    :or {host "localhost", port 5433, db "", make-pool? true}
+    :or {host "localhost" port 5433 db "" make-pool? true}
     :as opts}]
   (merge {:classname "com.vertica.jdbc.Driver" ; must be in classpath
           :subprotocol "vertica"
@@ -177,12 +177,11 @@
           :make-pool? make-pool?}
          (dissoc opts :host :port :db)))
 
-
 (defn mssql
   "Create a database specification for a mssql database. Opts should include keys
   for :db, :user, and :password. You can also optionally set host and port."
   [{:keys [user password db host port make-pool?]
-    :or {user "dbuser", password "dbpassword", db "", host "localhost", port 1433, make-pool? true}
+    :or {user "dbuser" password "dbpassword" db "" host "localhost" port 1433 make-pool? true}
     :as opts}]
   (merge {:classname "com.microsoft.sqlserver.jdbc.SQLServerDriver" ; must be in classpath
           :subprotocol "sqlserver"
@@ -194,7 +193,7 @@
   "Create a database specification for a Microsoft Access database. Opts
   should include keys for :db and optionally :make-pool?."
   [{:keys [^String db make-pool?]
-    :or {db "", make-pool? false}
+    :or {db "" make-pool? false}
     :as opts}]
   (merge {:classname "sun.jdbc.odbc.JdbcOdbcDriver" ; must be in classpath
           :subprotocol "odbc"
@@ -208,7 +207,7 @@
   "Create a database specification for an ODBC DSN. Opts
   should include keys for :dsn and optionally :make-pool?."
   [{:keys [dsn make-pool?]
-    :or {dsn "", make-pool? true}
+    :or {dsn "" make-pool? true}
     :as opts}]
   (merge {:classname "sun.jdbc.odbc.JdbcOdbcDriver" ; must be in classpath
           :subprotocol "odbc"
@@ -220,7 +219,7 @@
   "Create a database specification for a SQLite3 database. Opts should include a
   key for :db which is the path to the database file."
   [{:keys [db make-pool?]
-    :or {db "sqlite.db", make-pool? true}
+    :or {db "sqlite.db" make-pool? true}
     :as opts}]
   (merge {:classname "org.sqlite.JDBC" ; must be in classpath
           :subprotocol "sqlite"
@@ -232,7 +231,7 @@
   "Create a database specification for a h2 database. Opts should include a key
   for :db which is the path to the database file."
   [{:keys [db make-pool?]
-    :or {db "h2.db", make-pool? true}
+    :or {db "h2.db" make-pool? true}
     :as opts}]
   (merge {:classname "org.h2.Driver" ; must be in classpath
           :subprotocol "h2"
@@ -251,8 +250,8 @@
         {:keys [isolation read-only?]} (when check-options options)
         body (if check-options (rest body) body)]
     `(jdbc/with-db-transaction [conn# (or *current-conn* (get-connection @_default)) {:isolation ~isolation :read-only? ~read-only?}]
-        (binding [*current-conn* conn#]
-          ~@body))))
+       (binding [*current-conn* conn#]
+         ~@body))))
 
 (defn rollback
   "Tell this current transaction to rollback."

@@ -229,8 +229,8 @@
 (defn- where-or-having-form [where*-or-having* query form]
   `(let [q# ~query]
      (~where*-or-having* q#
-                         (bind-query q#
-                                     (eng/pred-map ~(eng/parse-where `~form))))))
+      (bind-query q#
+                  (eng/pred-map ~(eng/parse-where `~form))))))
 
 (defn where*
   "Add a where clause to the query. Clause can be either a map or a string, and
@@ -281,9 +281,9 @@
 
   (order query :created :asc)"
   ([query field dir]
-    (update-in query [:order] conj [field (or dir :ASC)]))
+   (update-in query [:order] conj [field (or dir :ASC)]))
   ([query field]
-    (order query field :ASC)))
+   (order query field :ASC)))
 
 (defn values
   "Add records to an insert clause. values can either be a vector of maps or a
@@ -300,13 +300,13 @@
 
 (defn add-joins
   ([query ent rel]
-     (add-joins query ent rel :left))
+   (add-joins query ent rel :left))
   ([query ent rel type]
-     (if-let [join-table (:join-table rel)]
-       (-> query
-           (join* type join-table (sfns/pred-= (:lpk rel) @(:lfk rel)))
-           (join* type ent (sfns/pred-= @(:rfk rel) (:rpk rel))))
-       (join* query type ent (sfns/pred-= (:pk rel) (:fk rel))))))
+   (if-let [join-table (:join-table rel)]
+     (-> query
+         (join* type join-table (sfns/pred-= (:lpk rel) @(:lfk rel)))
+         (join* type ent (sfns/pred-= @(:rfk rel) (:rpk rel))))
+     (join* query type ent (sfns/pred-= (:pk rel) (:fk rel))))))
 
 (defmacro join
   "Add a join clause to a select query, specifying an entity defined by defentity, or the table name to
@@ -320,17 +320,17 @@
   (join query :right addresses (= :address.users_id :users.id))"
   {:arglists '([query ent] [query type-or-table ent-or-clause] [query type table clause])}
   ([query ent]
-     `(join ~query :left ~ent))
+   `(join ~query :left ~ent))
   ([query type-or-table ent-or-clause]
-     `(if (entity? ~ent-or-clause)
-        (let [q# ~query
-              e# ~ent-or-clause
-              rel# (get-rel (:ent q#) e#)
-              type# ~type-or-table]
-          (add-joins q# e# rel# type#))
-        (join ~query :left ~type-or-table ~ent-or-clause)))
+   `(if (entity? ~ent-or-clause)
+      (let [q# ~query
+            e# ~ent-or-clause
+            rel# (get-rel (:ent q#) e#)
+            type# ~type-or-table]
+        (add-joins q# e# rel# type#))
+      (join ~query :left ~type-or-table ~ent-or-clause)))
   ([query type table clause]
-     `(join* ~query ~type ~table (eng/pred-map ~(eng/parse-where clause)))))
+   `(join* ~query ~type ~table (eng/pred-map ~(eng/parse-where clause)))))
 
 (defn post-query
   "Add a function representing a query that should be executed for each result
@@ -484,21 +484,21 @@
         sql (:sql-str query)
         params (:params query)]
     (cond
-     (:sql query) sql
-     (= *exec-mode* :sql) sql
-     (= *exec-mode* :query) query
-     (= *exec-mode* :dry-run) (do
-                                (println "dry run ::" sql "::" (vec params))
-                                (let [result-keys (conj (->> query :ent :rel vals
-                                                             (map deref)
-                                                             (filter (comp #{:belongs-to} :rel-type))
-                                                             (map :fk-key))
-                                                        (-> query :ent :pk))
-                                      results (apply-posts query [(zipmap result-keys (repeat 1))])]
-                                  (first results)
-                                  results))
-     :else (let [results (db/do-query query)]
-             (apply-transforms query (apply-posts query results))))))
+      (:sql query) sql
+      (= *exec-mode* :sql) sql
+      (= *exec-mode* :query) query
+      (= *exec-mode* :dry-run) (do
+                                 (println "dry run ::" sql "::" (vec params))
+                                 (let [result-keys (conj (->> query :ent :rel vals
+                                                              (map deref)
+                                                              (filter (comp #{:belongs-to} :rel-type))
+                                                              (map :fk-key))
+                                                         (-> query :ent :pk))
+                                       results (apply-posts query [(zipmap result-keys (repeat 1))])]
+                                   (first results)
+                                   results))
+      :else (let [results (db/do-query query)]
+              (apply-transforms query (apply-posts query results))))))
 
 (defn exec-raw
   "Execute a raw SQL string, supplying whether results should be returned. `sql`
@@ -539,9 +539,9 @@
 
 (defn- default-fk-name [ent]
   (cond
-   (map? ent) (keyword (str (simple-table-name ent) "_id"))
-   (var? ent) (recur @ent)
-   :else      (throw (Exception. (str "Can't determine default fk for " ent)))))
+    (map? ent) (keyword (str (simple-table-name ent) "_id"))
+    (var? ent) (recur @ent)
+    :else (throw (Exception. (str "Can't determine default fk for " ent)))))
 
 (defn- many-to-many-keys [parent child {:keys [join-table lfk rfk]}]
   {:lpk (raw (eng/prefix parent (:pk parent)))
@@ -558,9 +558,9 @@
 
 (defn- db-keys-and-foreign-ent [type ent sub-ent opts]
   (case type
-    :many-to-many        [(many-to-many-keys ent sub-ent opts) sub-ent]
+    :many-to-many [(many-to-many-keys ent sub-ent opts) sub-ent]
     (:has-one :has-many) [(get-db-keys ent sub-ent opts) sub-ent]
-    :belongs-to          [(get-db-keys sub-ent ent opts) ent]))
+    :belongs-to [(get-db-keys sub-ent ent opts) ent]))
 
 (defn create-relation [ent sub-ent type opts]
   (let [[db-keys foreign-ent] (db-keys-and-foreign-ent type ent sub-ent opts)
@@ -578,11 +578,11 @@
         var-ns (-> sub-ent meta :ns)]
     (assoc-in ent [:rel (name var-name)]
               (delay
-               (let [resolved (ns-resolve var-ns var-name)
-                     sub-ent (when resolved (deref sub-ent))]
-                 (when-not (map? sub-ent)
-                   (throw (Exception. (format "Entity used in relationship does not exist: %s" (name var-name)))))
-                 (create-relation ent sub-ent type opts))))))
+                (let [resolved (ns-resolve var-ns var-name)
+                      sub-ent (when resolved (deref sub-ent))]
+                  (when-not (map? sub-ent)
+                    (throw (Exception. (format "Entity used in relationship does not exist: %s" (name var-name)))))
+                  (create-relation ent sub-ent type opts))))))
 
 (defn get-rel [ent sub-ent]
   (let [sub-name (if (map? sub-ent)
@@ -720,9 +720,9 @@
     (post-query query
                 (partial map
                          #(assoc % table
-                                 (select ent
-                                         (body-fn)
-                                         (where {fk-key (get % pk)})))))))
+                              (select ent
+                                (body-fn)
+                                (where {fk-key (get % pk)})))))))
 
 (defn- make-key-unique [->key m k n]
   (let [unique-key (if (= n 1) k (keyword (->key (str (name k) "_" n))))]
@@ -738,7 +738,7 @@
 
 (defn- get-join-keys [rel ent sub-ent]
   (case (:rel-type rel)
-    :has-one    [(:pk ent) (:fk-key rel)]
+    :has-one [(:pk ent) (:fk-key rel)]
     :belongs-to [(:fk-key rel) (:pk sub-ent)]))
 
 (defn- with-one-to-one-later [rel query sub-ent body-fn]
@@ -748,10 +748,10 @@
                 (partial map
                          (fn [ent]
                            (assoc ent (keyword (eng/table-alias sub-ent))
-                                  (first
-                                    (select sub-ent
-                                            (body-fn)
-                                            (where {sub-ent-key (get ent ent-key)})))))))))
+                               (first
+                                 (select sub-ent
+                                   (body-fn)
+                                   (where {sub-ent-key (get ent ent-key)})))))))))
 
 (defn- with-one-to-one-now [rel query sub-ent body-fn]
   (let [table (if (:alias rel) [(:table sub-ent) (:alias sub-ent)] (:table sub-ent))
@@ -770,17 +770,17 @@
         ent (assoc-db-to-entity query ent)]
     (post-query query (partial map
                                #(assoc % table
-                                       (select ent
-                                               (join :inner join-table (= @rfk rpk))
-                                               (body-fn)
-                                               (where {@lfk (get % pk)})))))))
+                                    (select ent
+                                      (join :inner join-table (= @rfk rpk))
+                                      (body-fn)
+                                      (where {@lfk (get % pk)})))))))
 
 (defn with* [query sub-ent body-fn]
   (let [{:keys [rel-type] :as rel} (get-rel (:ent query) sub-ent)
         transforms (seq (:transforms sub-ent))]
     (cond
       (#{:belongs-to :has-one} rel-type) (with-one-to-one-later rel query sub-ent body-fn)
-      (= :has-many rel-type)     (with-one-to-many rel query sub-ent body-fn)
+      (= :has-many rel-type) (with-one-to-many rel query sub-ent body-fn)
       (= :many-to-many rel-type) (with-many-to-many rel query sub-ent body-fn)
       :else (throw (Exception. (str "No relationship defined for table: "
                                     (:table sub-ent)))))))
@@ -837,10 +837,10 @@
                 (fn [rows]
                   (let [fks (map #(get % pk) rows)
                         child-rows (select ent
-                                           (body-fn)
-                                           (where {fk-key [in fks]})
-                                           (ensure-fields [fk-key])
-                                           (ensure-valid-subquery))
+                                     (body-fn)
+                                     (where {fk-key [in fks]})
+                                     (ensure-fields [fk-key])
+                                     (ensure-valid-subquery))
                         child-rows-by-pk (group-by fk-key child-rows)]
                     (map #(assoc %
                             table (get child-rows-by-pk (get % pk)))
