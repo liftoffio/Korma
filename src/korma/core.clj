@@ -332,6 +332,12 @@
   ([query type table clause]
    `(join* ~query ~type ~table (eng/pred-map ~(eng/parse-where clause)))))
 
+(defn pre-side-effect [ent f]
+  (update-in ent [:pre-side-effects] conj f))
+
+(defn post-side-effect [ent f]
+  (update-in ent [:post-side-effects] conj f))
+
 (defn post-query
   "Add a function representing a query that should be executed for each result
   in a select. This is done lazily over the result set."
@@ -448,6 +454,16 @@
   [query]
   (bind-query query (:sql-str (eng/->sql query))))
 
+(defn- apply-pre-side-effects [query]
+  (if-let [side-effects (-> query :ent :pre-side-effects seq)]
+    (let [f (apply comp side-effects)]
+      (f query))))
+
+(defn- apply-post-side-effects [query results]
+  (if-let [side-effects (-> query :ent :post-side-effects seq)]
+    (let [f (apply comp side-effects)]
+      (f query results))))
+
 (defn- apply-posts
   [query results]
   (if-let [posts (seq (:post-queries query))]
@@ -476,13 +492,12 @@
         query))
     query))
 
-(defn exec
-  "Execute a query map and return the results."
-  [query]
+(defn- exec* [query]
   (let [query (apply-prepares query)
         query (bind-query query (eng/->sql query))
         sql (:sql-str query)
         params (:params query)]
+    (apply-pre-side-effects query)
     (cond
       (:sql query) sql
       (= *exec-mode* :sql) sql
@@ -498,7 +513,17 @@
                                    (first results)
                                    results))
       :else (let [results (db/do-query query)]
+              (apply-post-side-effects query results)
               (apply-transforms query (apply-posts query results))))))
+
+(defn exec
+  "Execute a query map and return the results."
+  [query]
+  (if (or (seq (:pre-side-effects query)) (seq (:post-side-effects query)))
+    (db/with-db (or db/*current-db* (get query :db))
+      (db/transaction
+        (exec* query)))
+    (exec* query)))
 
 (defn exec-raw
   "Execute a raw SQL string, supplying whether results should be returned. `sql`
