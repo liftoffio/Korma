@@ -79,6 +79,12 @@
                    :values []
                    :results :keys}))
 
+(defn upsert-fallback* [ent]
+  (make-query ent {:type :upsert-fallback
+                   :fields {}
+                   :upsert-where-map {}
+                   :results :keys}))
+
 (defn union*
   "Create an empty union query."
   []
@@ -156,6 +162,9 @@
   [ent & body]
   (make-query-then-exec #'insert* body ent))
 
+(defmacro upsert-fallback [ent & body]
+  (make-query-then-exec #'upsert-fallback* body ent))
+
 (defmacro union
   "Creates a union query, applies any modifying functions in the body and then
   executes it.
@@ -220,6 +229,10 @@
   "Set the fields and values for an update query."
   [query fields-map]
   (update-in query [:set-fields] merge fields-map))
+
+(defn upsert-where-map
+  [query where-map]
+  (update-in query [:upsert-where-map] merge where-map))
 
 (defn from
   "Add tables to the from clause."
@@ -473,7 +486,7 @@
 
 (defn- apply-transforms
   [query results]
-  (if (#{:delete :update :insert} (:type query))
+  (if (#{:delete :update :insert :upsert-fallback} (:type query))
     results
     (if-let [trans (-> query :ent :transforms seq)]
       (let [trans-fn (apply comp trans)]
@@ -489,6 +502,7 @@
       (case (:type query)
         :insert (update-in query [:values] #(map prep-fn %))
         :update (update-in query [:set-fields] prep-fn)
+        :upsert-fallback (update-in query [:set-fields] prep-fn)
         query))
     query))
 
