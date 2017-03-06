@@ -308,6 +308,26 @@
                    noop-query)]
     (assoc query :sql-str neue-sql)))
 
+; TODO(alexei): Replace this with proper upsert after upgrade to Postgres
+(defn sql-upsert-fallback [query]
+  (let [table-name (table-str query)
+        where-map (get query :upsert-where-map)
+        sorted-where-map (into (sorted-map) where-map)
+        sorted-combined-map (->> (get query :set-fields)
+                                 (merge where-map)
+                                 (into (sorted-map)))
+        all-fields (map name (keys sorted-combined-map))
+        fields-str (string/join ", " all-fields)
+        values-str (comma-values (vals sorted-combined-map))
+        inner-where-clause (->> sorted-where-map
+                                (map (fn [[col v]]
+                                       (str (name col) " " (if (nil? v) "IS NULL" (str "= " (parameterize v))))))
+                                (string/join " AND "))
+        neue-sql (str "INSERT INTO " table-name " (" fields-str ")"
+                      " SELECT " values-str
+                      " WHERE NOT EXISTS (SELECT 1 FROM " table-name " WHERE " inner-where-clause ")")]
+    (assoc query :sql-str neue-sql)))
+
 ;;*****************************************************
 ;; Sql parts
 ;;*****************************************************
@@ -410,4 +430,6 @@
                   sql-delete
                   sql-where)
       :insert (-> query
-                  sql-insert))))
+                  sql-insert)
+      :upsert-fallback (-> query
+                           sql-upsert-fallback))))
