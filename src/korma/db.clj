@@ -31,6 +31,19 @@
   (when-let [resolved (resolve class)]
     `(new ~resolved)))
 
+(defmacro with-silenced-stderr
+  "Evaluates the body with System/err redirected."
+  [& body]
+  `(let [old-err# System/err
+         null-output-stream# (proxy [java.io.OutputStream] []
+                               (write [b# off# len#]))
+         new-err# (java.io.PrintStream. null-output-stream#)]
+     (try
+       (System/setErr new-err#)
+       ~@body
+       (finally
+         (System/setErr old-err#)))))
+
 (defn connection-pool
   "Create a connection pool for the given database spec."
   [{:keys [subprotocol subname classname
@@ -52,7 +65,10 @@
     :as spec}]
   (when-not c3p0-enabled?
     (throw (Exception. "com.mchange.v2.c3p0.ComboPooledDataSource not found in class path.")))
-  {:datasource (doto (resolve-new ComboPooledDataSource)
+  ; We silence stderr when constructing a ComboPooledDataSource in order to hide this MLog message, printed
+  ; directly to stderr:
+  ; MLog initialization issue: slf4j found no binding or threatened to use its (dangerously silent) NOPLogger. We consider the slf4j library not found.
+  {:datasource (doto (with-silenced-stderr (resolve-new ComboPooledDataSource))
                  (.setDriverClass classname)
                  (.setJdbcUrl (str "jdbc:" subprotocol ":" subname))
                  (.setProperties (as-properties (dissoc spec
