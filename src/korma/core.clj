@@ -533,7 +533,8 @@
 (defn exec
   "Execute a query map and return the results."
   [query]
-  (if (or (seq (:pre-side-effects query)) (seq (:post-side-effects query)))
+  (if (or (seq (:pre-side-effects query)) (seq (:post-side-effects query))
+          (-> query :ent :prepares seq))
     (db/with-db (or db/*current-db* (get query :db))
       (db/transaction
         (exec* query)))
