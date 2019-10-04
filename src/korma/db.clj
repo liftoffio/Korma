@@ -257,6 +257,8 @@
 
 (defmacro transaction
   "Execute all queries within the body in a single transaction.
+  When executed in the context of existing connection will use that and properly nest transactions.
+  Otherwise it will fallback to default-connection.
   Optionally takes as a first argument a map to specify the :isolation and :read-only? properties of the transaction."
   {:arglists '([body] [options & body])}
   [& body]
@@ -288,9 +290,10 @@
       (jdbc/db-do-prepared *current-conn* sql-params))))
 
 (defmacro with-db
-  "Execute all queries within the body using the given db spec"
+  "Execute all queries within the body using the given db spec.
+  Breaks nested transactions! Use default-connection instead."
   [db & body]
-  `(jdbc/with-db-connection [conn# (korma.db/get-connection ~db)]
+  `(jdbc/with-db-connection [conn# (get-connection ~db)]
      (binding [*current-db* ~db
                *current-conn* conn#]
        ~@body)))

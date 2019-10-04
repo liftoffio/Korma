@@ -533,11 +533,15 @@
 (defn exec
   "Execute a query map and return the results."
   [query]
-  (if (or (seq (:pre-side-effects query)) (seq (:post-side-effects query))
+  (if (or (seq (get-in query [:ent :pre-side-effects]))
+          (seq (get-in query [:ent :post-side-effects]))
           (-> query :ent :prepares seq))
-    (db/with-db (or db/*current-db* (get query :db))
+    (if db/*current-conn*
       (db/transaction
-        (exec* query)))
+        (exec* query))
+      (db/with-db (or (:db query) @db/_default)
+        (db/transaction
+          (exec* query))))
     (exec* query)))
 
 (defn exec-raw
