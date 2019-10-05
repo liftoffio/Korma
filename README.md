@@ -100,6 +100,14 @@ And include log4j in your project.clj:
 
 ```
 
+## Dev setup
+
+To run tests on MacOS X:
+
+    brew install mysql@5.7
+
+and follow the instructions to start the DB, for example with `brew services start mysql@5.7`.
+
 ## License
 
 Copyright (C) 2011 Chris Granger
