@@ -11,7 +11,7 @@ Tasty SQL for Clojure.
 Simply add Korma as a dependency to your lein project:
 
 ```clojure
-[korma "0.4.3"]
+[korma "0.4.3-liftoff-4"]
 ```
 
 ## Docs and Real Usage
@@ -63,7 +63,7 @@ And include log4j in your project.clj:
   (where {:username "chris"}))
 ;; executes: SELECT * FROM users WHERE (users.username = 'chris')
 
-(select users 
+(select users
   (where {:active true})
   (order :created)
   (limit 5)
@@ -106,7 +106,18 @@ To run tests on MacOS X:
 
     brew install mysql@5.7
 
-and follow the instructions to start the DB, for example with `brew services start mysql@5.7`.
+and follow the instructions to start the DB, for example with:
+
+    brew services start mysql@5.7
+
+Currently, many tests are broken. As we're not going to maintain it any longer, we're not going to fix the
+tests.
+
+### Installation
+
+Push the module to [clojars](https://clojars.org/liftoff/korma) with the following command:
+
+    lein deploy clojars
 
 ## License
 
