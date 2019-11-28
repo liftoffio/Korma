@@ -1,0 +1,9 @@
+{:deps {com.mchange/c3p0 {:mvn/version "0.9.5.2"}
+        org.clojure/java.jdbc {:mvn/version "0.6.1"}}
+ :aliases {:test {:extra-paths ["test"]
+                  :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                          :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}
+                               mysql/mysql-connector-java {:mvn/version "5.1.35"}
+                               com.h2database/h2 {:mvn/version "1.4.187"}
+                               criterium {:mvn/version "0.4.3"}}
+                  :main-opts ["-m" "cognitect.test-runner"]}}}
