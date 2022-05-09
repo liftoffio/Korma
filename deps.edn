@@ -5,5 +5,5 @@
                                                           :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}
                                mysql/mysql-connector-java {:mvn/version "5.1.35"}
                                com.h2database/h2 {:mvn/version "1.4.187"}
-                               criterium {:mvn/version "0.4.3"}}
+                               criterium/criterium {:mvn/version "0.4.3"}}
                   :main-opts ["-m" "cognitect.test-runner"]}}}
