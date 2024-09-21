@@ -1,7 +1,8 @@
 (ns korma.db
   "Functions for creating and managing database specifications."
   (:require [clojure.java.jdbc :as jdbc]
-            [korma.config :as conf]))
+            [korma.config :as conf])
+  (:import [org.postgresql.util PSQLException PSQLState]))
 
 (defonce _default (atom nil))
 
@@ -299,7 +300,16 @@
        ~@body)))
 
 (defn do-query [{:keys [db] :as query}]
-  (if *current-conn*
-    (exec-sql query)
-    (with-db (or db @_default)
-      (exec-sql query))))
+  (try
+    (if *current-conn*
+      (exec-sql query)
+      (with-db (or db @_default)
+        (exec-sql query)))
+    (catch PSQLException e
+      (throw
+       (PSQLException.
+        (str "Failed executing query: " (:sql-str query) "\n" (.getMessage e))
+        (->> (PSQLState/values)
+             (filter #(= (.getState %) (.getSQLState e)))
+             first)
+        (.getCause e))))))
