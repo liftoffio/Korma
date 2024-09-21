@@ -9,3 +9,5 @@ pom.xml
 /.idea
 .DS_Store
 .cpcache
+.clj-kondo/.cache/
+.lsp/.cache/
